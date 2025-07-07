@@ -43,5 +43,9 @@ def zoom_webhook():
 
     return jsonify({"status": "received"}), 200
 
+    @app.route("/", methods=["GET"])
+    def home():
+        return "Zoom Webhook is Live ✅", 200
+
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
