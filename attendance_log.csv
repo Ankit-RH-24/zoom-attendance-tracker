@@ -1,0 +1,2 @@
+Event,Name,Email,JoinTime,LeaveTime,MeetingID,Topic,ReceivedAt
+meeting.participant_joined,Ankit Girish,ankit@example.com,2025-07-01T10:00:00Z,2025-07-01T10:45:00Z,123456789,Demo Meeting,2025-07-01T10:00:05Z
