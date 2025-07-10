@@ -12,6 +12,17 @@ Path(DATA_FILE).touch(exist_ok=True)  # Create file if not exists
 @app.route("/zoom-webhook", methods=["POST"])
 def zoom_webhook():
     data = request.json
+
+    # ✅ Step 1: Handle Zoom URL Validation
+    if data.get("event") == "endpoint.url_validation":
+        plain_token = data["payload"]["plainToken"]
+        encrypted_token = data["payload"]["encryptedToken"]
+        return jsonify({
+            "plainToken": plain_token,
+            "encryptedToken": encrypted_token
+        }), 200
+
+    # ✅ Step 2: Handle actual Zoom events (join/leave etc.)
     event = data.get("event")
     payload = data.get("payload", {})
     participant = payload.get("object", {}).get("participant", {})
@@ -43,9 +54,9 @@ def zoom_webhook():
 
     return jsonify({"status": "received"}), 200
 
-    @app.route("/", methods=["GET"])
-    def home():
-        return "Zoom Webhook is Live ✅", 200
+@app.route("/", methods=["GET"])
+def home():
+    return "Zoom Webhook is Live ✅", 200
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
