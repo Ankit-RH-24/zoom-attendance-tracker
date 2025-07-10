@@ -5,7 +5,12 @@ from datetime import datetime
 from pathlib import Path
 
 app = Flask(__name__)
+
+# Config
 DATA_FILE = "attendance_log.csv"
+SECRET_TOKEN = "zoom-webhook-secret-123"  # 🔐 Same as Zoom Webhook Header Value
+
+# Ensure the data file exists
 Path(DATA_FILE).touch(exist_ok=True)
 
 @app.route("/", methods=["GET"])
@@ -14,9 +19,15 @@ def home():
 
 @app.route("/zoom-webhook", methods=["POST"])
 def zoom_webhook():
+    # 🔐 Check custom Authorization header
+    auth_header = request.headers.get("Authorization", "")
+    expected_auth = f"Bearer {SECRET_TOKEN}"
+    if auth_header != expected_auth:
+        return jsonify({"error": "Unauthorized"}), 401
+
     data = request.json
 
-    # 🛡️ Step 1: Handle URL Validation challenge
+    # 🛡️ Handle Zoom URL validation
     if data.get("event") == "endpoint.url_validation":
         print("🔐 URL validation request received")
         plain_token = data["payload"]["plainToken"]
@@ -26,7 +37,7 @@ def zoom_webhook():
             "encryptedToken": encrypted_token
         })
 
-    # 🧾 Step 2: Handle real meeting events
+    # 🧾 Handle actual meeting participant events
     event = data.get("event")
     payload = data.get("payload", {})
     participant = payload.get("object", {}).get("participant", {})
